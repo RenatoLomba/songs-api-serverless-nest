@@ -1,0 +1,19 @@
+version: '3.3'
+
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: 'songs-api-db'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: 'docker'
+      MYSQL_ROOT_PASSWORD: 'docker'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - songs-api-db:/var/lib/mysql
+
+volumes:
+  songs-api-db:

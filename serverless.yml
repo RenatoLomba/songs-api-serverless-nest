@@ -1,0 +1,47 @@
+service: songs-api
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-jetpack
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+  environment:
+    DATABASE_USERNAME: ${self:custom.dbUsername}
+    DATABASE_PASSWORD: ${self:custom.dbPassword}
+    DATABASE_HOST: ${self:custom.dbHost}
+    DATABASE_PORT: ${self:custom.dbPort}
+    DATABASE_NAME: ${self:custom.dbName}
+
+resources:
+  Resources:
+    SongsDatabase:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        AllocatedStorage: '20'
+        DBInstanceClass: db.t3.micro
+        DBInstanceIdentifier: songs-api-db
+        PubliclyAccessible: true
+        StorageType: gp2
+        MasterUsername: ${self:custom.dbUsername}
+        MasterUserPassword: ${self:custom.dbPassword}
+        Engine: mysql
+        EngineVersion: 8.0.28
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: any
+          path: /{proxy+}
+
+custom:
+  dbUsername: songsapidbuser
+  dbPassword: songsapisbpwd
+  dbHost: !GetAtt SongsDatabase.Endpoint.Address
+  dbPort: !GetAtt SongsDatabase.Endpoint.Port
+  dbName: songsapidb
